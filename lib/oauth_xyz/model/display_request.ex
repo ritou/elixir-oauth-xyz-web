@@ -1,6 +1,6 @@
 defmodule OAuthXYZ.Model.DisplayRequest do
   @moduledoc """
-  Display Request Handling Module.
+  Display Request Struct and Handling Function.
   """
 
   @type t :: %__MODULE__{}
