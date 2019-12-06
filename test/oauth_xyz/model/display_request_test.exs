@@ -4,16 +4,29 @@ defmodule OAuthXYZ.Model.DisplayRequestTest do
   alias OAuthXYZ.Model.DisplayRequest
 
   test "constructor" do
-    display = %DisplayRequest{
-      handle: "12345",
-      name: "ritou",
-      uri: "https://example.com",
-      logo_uri: "https://example.com/logo"
-    }
+    handle = "VBUEOIQA82PBY2ZDJW7Q"
 
-    assert display.handle
-    assert display.name
-    assert display.uri
-    assert display.logo_uri
+    display = DisplayRequest.parse(handle)
+
+    assert display.handle == handle
+    refute display.name
+    refute display.uri
+    refute display.logo_uri
+
+    name = "My Client Display Name"
+    uri = "https://example.net/client"
+    logo_uri = "https://example.net/client/logo"
+
+    display =
+      DisplayRequest.parse(%{
+        "name" => name,
+        "uri" => uri,
+        "logo_uri" => logo_uri
+      })
+
+    assert display.name == name
+    assert display.uri == uri
+    assert display.logo_uri == logo_uri
+    refute display.handle
   end
 end
