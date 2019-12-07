@@ -29,7 +29,7 @@ defmodule OAuthXYZ.Model.KeyRequestTest do
         }
       })
 
-    assert key.jwk == %{"keys" => jwk_keys}
+    assert key.jwks == %{"keys" => jwk_keys}
     assert key.proof == "jwsd"
     refute key.handle
 
@@ -50,7 +50,7 @@ defmodule OAuthXYZ.Model.KeyRequestTest do
         }
       })
 
-    assert key.jwk == %{"keys" => jwk_keys}
+    assert key.jwks == %{"keys" => jwk_keys}
     assert key.proof == "httpsig"
     refute key.handle
 
