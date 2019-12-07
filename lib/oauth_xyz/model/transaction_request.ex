@@ -1,27 +1,112 @@
 defmodule OAuthXYZ.Model.TransactionRequest do
   @moduledoc """
   Request Handling Module.
+
+  ```
+  {
+    "resources": [
+        {
+            "actions": [
+                "read",
+                "write",
+                "dolphin"
+            ],
+            "locations": [
+                "https://server.example.net/",
+                "https://resource.local/other"
+            ],
+            "datatypes": [
+                "metadata",
+                "images"
+            ]
+        },
+        "dolphin-metadata"
+    ],
+    "keys": {
+        "proof": "jwsd",
+        "jwks": {
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "e": "AQAB",
+                    "kid": "xyz-1",
+                    "alg": "RS256",
+                    "n": "kOB5rR4Jv0GMeL...."
+                }
+            ]
+        }
+    },
+    "interact": {
+        "redirect": true,
+        "callback": {
+            "uri": "https://client.example.net/return/123455",
+            "nonce": "LKLTI25DK82FX4T4QFZC"
+        }
+    },
+    "display": {
+        "name": "My Client Display Name",
+        "uri": "https://example.net/client"
+    }
+  }
+  ```
   """
+
+  alias OAuthXYZ.Model.{ResourceRequest, KeyRequest, InteractRequest, DisplayRequest, UserRequest}
 
   @type t :: %__MODULE__{}
 
+  # TODO: additional params
   defstruct [
-    #! :string
-    :handle,
-
-    #! :string
-    :interact_handle,
-
-    #! %OAuthXYZ.Model.DisplayRequest{}
-    :display,
-
+    #! %OAuthXYZ.Model.ResourceRequest{}
+    :resources,
+    #! %OAuthXYZ.Model.KeyRequest{}
+    :keys,
     #! %OAuthXYZ.Model.InteractRequest{}
     :interact,
-
-    #! %OAuthXYZ.Model.ResourceRequest{}
-    :resource,
-
-    #! %OAuthXYZ.Model.KeyRequest{}
-    :keys
+    #! %OAuthXYZ.Model.DisplayRequest{}
+    :display,
+    #! %OAuthXYZ.Model.UserRequest{}
+    :user
   ]
+
+  def parse(request) when is_map(request) do
+    parsed_request =
+      %{}
+      |> parse_resources(request)
+      |> parse_keys(request)
+      |> parse_interact(request)
+      |> parse_display(request)
+      |> parse_user(request)
+
+    %__MODULE__{
+      resources: parsed_request.resources,
+      keys: parsed_request.keys,
+      interact: parsed_request.interact,
+      display: parsed_request.display,
+      user: parsed_request.user
+    }
+  end
+
+  # private
+
+  defp parse_resources(keys, %{"resources" => resources}),
+    do: Map.put(keys, :resources, ResourceRequest.parse(resources))
+
+  defp parse_resources(keys, _), do: Map.put(keys, :resources, nil)
+
+  defp parse_keys(keys, %{"keys" => keys_param}), do: Map.put(keys, :keys, KeyRequest.parse(keys_param))
+  defp parse_keys(keys, _), do: Map.put(keys, :keys, nil)
+
+  defp parse_interact(keys, %{"interact" => interact}),
+    do: Map.put(keys, :interact, InteractRequest.parse(interact))
+
+  defp parse_interact(keys, _), do: Map.put(keys, :interact, nil)
+
+  defp parse_display(keys, %{"display" => display}),
+    do: Map.put(keys, :display, DisplayRequest.parse(display))
+
+  defp parse_display(keys, _), do: Map.put(keys, :display, nil)
+
+  defp parse_user(keys, %{"user" => user}), do: Map.put(keys, :user, UserRequest.parse(user))
+  defp parse_user(keys, _), do: Map.put(keys, :user, nil)
 end
