@@ -13,6 +13,8 @@ defmodule OAuthXYZ.Model.KeyRequest do
     #! :string
     :cert,
     #! :string
+    :cert_256,
+    #! :string
     :did,
     #! :string
     :proof
@@ -31,12 +33,14 @@ defmodule OAuthXYZ.Model.KeyRequest do
       %{}
       |> parse_jwk(request)
       |> parse_cert(request)
+      |> parse_cert_256(request)
       |> parse_did(request)
       |> parse_proof(request)
 
     %__MODULE__{
       jwk: parsed_request.jwk,
       cert: parsed_request.cert,
+      cert_256: parsed_request.cert_256,
       did: parsed_request.did,
       proof: parsed_request.proof
     }
@@ -49,6 +53,9 @@ defmodule OAuthXYZ.Model.KeyRequest do
 
   defp parse_cert(keys, %{"cert" => cert}), do: Map.put(keys, :cert, cert)
   defp parse_cert(keys, _), do: Map.put(keys, :cert, nil)
+
+  defp parse_cert_256(keys, %{"cert#256" => cert_256}), do: Map.put(keys, :cert_256, cert_256)
+  defp parse_cert_256(keys, _), do: Map.put(keys, :cert_256, nil)
 
   defp parse_did(keys, %{"did" => did}), do: Map.put(keys, :did, did)
   defp parse_did(keys, _), do: Map.put(keys, :did, nil)

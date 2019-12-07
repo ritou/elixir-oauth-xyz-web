@@ -67,6 +67,18 @@ defmodule OAuthXYZ.Model.KeyRequestTest do
     assert key.cert == cert
     refute key.handle
 
+    cert_256 = "bwcK0esc3ACC3DB2Y5_lESsXE8o9ltc05O89jdN-dg2"
+
+    key =
+      KeyRequest.parse(%{
+        "proof" => "mtls",
+        "cert#256" => cert_256
+      })
+
+    assert key.proof == "mtls"
+    assert key.cert_256 == cert_256
+    refute key.handle
+
     did = "did:example:CV3BVVXK2PWWLCRQLRFU#xyz-1"
 
     key =
