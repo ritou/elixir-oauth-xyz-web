@@ -4,6 +4,7 @@ defmodule OAuthXYZ.Model.TransactionRequestTest do
   alias OAuthXYZ.Model.TransactionRequest
 
   test "constructor" do
+    # init
     request = %{
       "resources" => [
         %{
@@ -62,5 +63,23 @@ defmodule OAuthXYZ.Model.TransactionRequestTest do
     assert parsed_request.interact
     assert parsed_request.display
     assert parsed_request.user
+    refute parsed_request.handle
+    refute parsed_request.interaction_handle
+
+    # continue
+    handle = "80UPRY5NM33OMUKMKSKU"
+
+    interaction_handle =
+      "CuD9MrpSXVKvvI6dN1awtNLx-HhZy46hJFDBicG4KoZaCmBofvqPxtm7CDMTsUFuvcmLwi_zUN70cCvalI6ENw"
+
+    request = %{
+      "handle" => handle,
+      "interact_handle" => interaction_handle
+    }
+
+    parsed_request = TransactionRequest.parse(request)
+
+    assert parsed_request.handle == handle
+    assert parsed_request.interaction_handle == interaction_handle
   end
 end

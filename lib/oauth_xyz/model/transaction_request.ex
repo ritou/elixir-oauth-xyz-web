@@ -3,6 +3,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
   Request Handling Module.
 
   ```
+  # Transaction request
   {
     "resources": [
         {
@@ -48,6 +49,11 @@ defmodule OAuthXYZ.Model.TransactionRequest do
         "uri": "https://example.net/client"
     }
   }
+
+  # Transaction continue request
+  {
+    "handle": "tghji76ytghj9876tghjko987yh"
+  }
   ```
   """
 
@@ -66,7 +72,11 @@ defmodule OAuthXYZ.Model.TransactionRequest do
     #! %OAuthXYZ.Model.DisplayRequest{}
     :display,
     #! %OAuthXYZ.Model.UserRequest{}
-    :user
+    :user,
+    #! :string
+    :handle,
+    #! :string
+    :interaction_handle
   ]
 
   def parse(request) when is_map(request) do
@@ -77,13 +87,17 @@ defmodule OAuthXYZ.Model.TransactionRequest do
       |> parse_interact(request)
       |> parse_display(request)
       |> parse_user(request)
+      |> parse_handle(request)
+      |> parse_interaction_handle(request)
 
     %__MODULE__{
       resources: parsed_request.resources,
       keys: parsed_request.keys,
       interact: parsed_request.interact,
       display: parsed_request.display,
-      user: parsed_request.user
+      user: parsed_request.user,
+      handle: parsed_request.handle,
+      interaction_handle: parsed_request.interaction_handle
     }
   end
 
@@ -94,7 +108,9 @@ defmodule OAuthXYZ.Model.TransactionRequest do
 
   defp parse_resources(keys, _), do: Map.put(keys, :resources, nil)
 
-  defp parse_keys(keys, %{"keys" => keys_param}), do: Map.put(keys, :keys, KeyRequest.parse(keys_param))
+  defp parse_keys(keys, %{"keys" => keys_param}),
+    do: Map.put(keys, :keys, KeyRequest.parse(keys_param))
+
   defp parse_keys(keys, _), do: Map.put(keys, :keys, nil)
 
   defp parse_interact(keys, %{"interact" => interact}),
@@ -108,5 +124,15 @@ defmodule OAuthXYZ.Model.TransactionRequest do
   defp parse_display(keys, _), do: Map.put(keys, :display, nil)
 
   defp parse_user(keys, %{"user" => user}), do: Map.put(keys, :user, UserRequest.parse(user))
+
   defp parse_user(keys, _), do: Map.put(keys, :user, nil)
+
+  defp parse_handle(keys, %{"handle" => handle}), do: Map.put(keys, :handle, handle)
+
+  defp parse_handle(keys, _), do: Map.put(keys, :handle, nil)
+
+  defp parse_interaction_handle(keys, %{"interaction_handle" => interaction_handle}),
+    do: Map.put(keys, :interaction_handle, interaction_handle)
+
+  defp parse_interaction_handle(keys, _), do: Map.put(keys, :interaction_handle, nil)
 end
