@@ -25,13 +25,13 @@ defmodule OAuthXYZWeb.ChannelCase do
     end
   end
 
-
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(OAuthXYZ.Repo)
+
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(OAuthXYZ.Repo, {:shared, self()})
     end
+
     :ok
   end
-
 end
