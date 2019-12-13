@@ -3,35 +3,50 @@ defmodule OAuthXYZ.Model.Transaction do
   Transaction Handling Module.
   """
 
-  alias OAuthXYZ.Model.{TransactionRequest}
+  alias OAuthXYZ.Model.TransactionRequest
 
   @type t :: %__MODULE__{}
 
   @transaction_status_list [:new, :issued, :authorized, :waiting, :denied]
 
-  # TODO: additional params
-  # * handles
-  # * access_token 
   defstruct [
     #! :string
     :handle,
-    #! %OAuthXYZ.Model.TransactionRequest{}
-    :request,
-    #! %OAuthXYZ.Enum.TransactionStatus
-    :status
+
+    #! :atom
+    :status,
+
+    # request and response data
+    :display,
+    :interact,
+    :user,
+    :resources,
+    :keys,
+
+    #! %OAuthXYZ.Model.AccessToken{}
+    :access_token
   ]
 
   @doc """
-  Parse string or map and return structure
+  init from handle and request
   """
   @spec new(data :: map) :: t
-  def new(%{request: request = %TransactionRequest{}}) do
-    handle = Ulid.generate()
-
+  def new(%{handle: handle, request: request = %TransactionRequest{}}) do
     %__MODULE__{
       handle: handle,
-      request: request,
-      status: :new
+      status: :new,
+      display: request.display,
+      interact: request.interact,
+      user: request.user,
+      resources: request.resources,
+      keys: request.keys,
+      access_token: nil
     }
+  end
+
+  @spec update_status(t, atom) :: t
+  def update_status(transaction = %__MODULE__{}, status)
+      when status in @transaction_status_list do
+    %{transaction | status: status}
   end
 end
