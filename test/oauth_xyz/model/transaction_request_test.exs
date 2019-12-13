@@ -74,7 +74,7 @@ defmodule OAuthXYZ.Model.TransactionRequestTest do
 
     request = %{
       "handle" => handle,
-      "interact_handle" => interaction_handle
+      "interaction_handle" => interaction_handle
     }
 
     parsed_request = TransactionRequest.parse(request)
