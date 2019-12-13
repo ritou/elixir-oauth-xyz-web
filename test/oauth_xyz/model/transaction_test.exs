@@ -1,7 +1,7 @@
 defmodule OAuthXYZ.Model.TransactionTest do
   use OAuthXYZ.DataCase
 
-  alias OAuthXYZ.Model.{Transaction, TransactionRequest}
+  alias OAuthXYZ.Model.{Handle, Transaction, TransactionRequest}
 
   @request_params %{
     "resources" => [
@@ -55,7 +55,7 @@ defmodule OAuthXYZ.Model.TransactionTest do
   }
 
   test "new, update_status" do
-    handle = Ulid.generate(System.system_time(:millisecond))
+    handle = Handle.new(%{value: Ulid.generate(System.system_time(:millisecond)), type: :bearer})
     transaction_request = TransactionRequest.parse(@request_params)
 
     transaction = Transaction.new(%{handle: handle, request: transaction_request})

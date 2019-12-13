@@ -3,7 +3,7 @@ defmodule OAuthXYZ.Model.Transaction do
   Transaction Handling Module.
   """
 
-  alias OAuthXYZ.Model.TransactionRequest
+  alias OAuthXYZ.Model.{Handle, TransactionRequest}
 
   @type t :: %__MODULE__{}
 
@@ -31,7 +31,7 @@ defmodule OAuthXYZ.Model.Transaction do
   init from handle and request
   """
   @spec new(data :: map) :: t
-  def new(%{handle: handle, request: request = %TransactionRequest{}}) do
+  def new(%{handle: handle = %Handle{}, request: request = %TransactionRequest{}}) do
     %__MODULE__{
       handle: handle,
       status: :new,
