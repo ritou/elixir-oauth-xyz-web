@@ -57,7 +57,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
   ```
   """
 
-  alias OAuthXYZ.Model.{ResourceRequest, KeyRequest, InteractRequest, DisplayRequest, UserRequest}
+  alias OAuthXYZ.Model.{ResourceRequest, KeyRequest, Interact, DisplayRequest, UserRequest}
 
   @type t :: %__MODULE__{}
 
@@ -67,7 +67,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
     :resources,
     #! %OAuthXYZ.Model.KeyRequest{}
     :keys,
-    #! %OAuthXYZ.Model.InteractRequest{}
+    #! %OAuthXYZ.Model.Interact{}
     :interact,
     #! %OAuthXYZ.Model.DisplayRequest{}
     :display,
@@ -114,7 +114,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
   defp parse_keys(keys, _), do: Map.put(keys, :keys, nil)
 
   defp parse_interact(keys, %{"interact" => interact}),
-    do: Map.put(keys, :interact, InteractRequest.parse(interact))
+    do: Map.put(keys, :interact, Interact.parse(interact))
 
   defp parse_interact(keys, _), do: Map.put(keys, :interact, nil)
 

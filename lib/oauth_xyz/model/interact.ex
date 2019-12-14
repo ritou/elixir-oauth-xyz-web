@@ -1,6 +1,6 @@
-defmodule OAuthXYZ.Model.InteractRequest do
+defmodule OAuthXYZ.Model.Interact do
   @moduledoc """
-  Interact Request Handling Module.
+  Module for interact.
 
   ```
   # redirect
@@ -39,6 +39,7 @@ defmodule OAuthXYZ.Model.InteractRequest do
   @type t :: %__MODULE__{}
 
   defstruct [
+    # from request
     #! :boolean
     :redirect,
     #! :map
@@ -48,7 +49,19 @@ defmodule OAuthXYZ.Model.InteractRequest do
     #! :boolean
     :didcomm,
     #! :boolean
-    :didcomm_query
+    :didcomm_query,
+
+    # for response
+    #! :string
+    :url,
+    #! :string
+    :interact_id,
+    #! :string
+    :server_nonce,
+    #! :string
+    :user_code,
+    #! :string
+    :user_code_url
   ]
 
   @doc """

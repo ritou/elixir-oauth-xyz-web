@@ -1,14 +1,14 @@
-defmodule OAuthXYZ.Model.InteractRequestTest do
+defmodule OAuthXYZ.Model.InteractTest do
   use OAuthXYZ.DataCase
 
-  alias OAuthXYZ.Model.InteractRequest
+  alias OAuthXYZ.Model.Interact
 
   test "constructor" do
     uri = "https://client.example.net/return/123455"
     nonce = "LKLTI25DK82FX4T4QFZC"
 
     interact =
-      InteractRequest.parse(%{
+      Interact.parse(%{
         "redirect" => true,
         "callback" => %{
           "uri" => uri,
@@ -28,7 +28,7 @@ defmodule OAuthXYZ.Model.InteractRequestTest do
     refute interact.didcomm_query
 
     interact =
-      InteractRequest.parse(%{
+      Interact.parse(%{
         "user_code" => true
       })
 
@@ -39,7 +39,7 @@ defmodule OAuthXYZ.Model.InteractRequestTest do
     refute interact.didcomm_query
 
     interact =
-      InteractRequest.parse(%{
+      Interact.parse(%{
         "didcomm" => true
       })
 
@@ -50,7 +50,7 @@ defmodule OAuthXYZ.Model.InteractRequestTest do
     refute interact.didcomm_query
 
     interact =
-      InteractRequest.parse(%{
+      Interact.parse(%{
         "didcomm_query" => true
       })
 
