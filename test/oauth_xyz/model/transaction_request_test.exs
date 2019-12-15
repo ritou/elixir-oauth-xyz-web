@@ -64,22 +64,22 @@ defmodule OAuthXYZ.Model.TransactionRequestTest do
     assert parsed_request.display
     assert parsed_request.user
     refute parsed_request.handle
-    refute parsed_request.interaction_handle
+    refute parsed_request.interaction_ref
 
     # continue
     handle = "80UPRY5NM33OMUKMKSKU"
 
-    interaction_handle =
+    interaction_ref =
       "CuD9MrpSXVKvvI6dN1awtNLx-HhZy46hJFDBicG4KoZaCmBofvqPxtm7CDMTsUFuvcmLwi_zUN70cCvalI6ENw"
 
     request = %{
       "handle" => handle,
-      "interaction_handle" => interaction_handle
+      "interaction_ref" => interaction_ref
     }
 
     parsed_request = TransactionRequest.parse(request)
 
     assert parsed_request.handle == handle
-    assert parsed_request.interaction_handle == interaction_handle
+    assert parsed_request.interaction_ref == interaction_ref
   end
 end

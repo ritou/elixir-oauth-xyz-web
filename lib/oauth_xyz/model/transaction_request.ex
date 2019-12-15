@@ -76,7 +76,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
     #! :string
     :handle,
     #! :string
-    :interaction_handle
+    :interaction_ref
   ]
 
   def parse(request) when is_map(request) do
@@ -88,7 +88,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
       |> parse_display(request)
       |> parse_user(request)
       |> parse_handle(request)
-      |> parse_interaction_handle(request)
+      |> parse_interaction_ref(request)
 
     %__MODULE__{
       resources: parsed_request.resources,
@@ -97,7 +97,7 @@ defmodule OAuthXYZ.Model.TransactionRequest do
       display: parsed_request.display,
       user: parsed_request.user,
       handle: parsed_request.handle,
-      interaction_handle: parsed_request.interaction_handle
+      interaction_ref: parsed_request.interaction_ref
     }
   end
 
@@ -131,8 +131,8 @@ defmodule OAuthXYZ.Model.TransactionRequest do
 
   defp parse_handle(keys, _), do: Map.put(keys, :handle, nil)
 
-  defp parse_interaction_handle(keys, %{"interaction_handle" => interaction_handle}),
-    do: Map.put(keys, :interaction_handle, interaction_handle)
+  defp parse_interaction_ref(keys, %{"interaction_ref" => interaction_ref}),
+    do: Map.put(keys, :interaction_ref, interaction_ref)
 
-  defp parse_interaction_handle(keys, _), do: Map.put(keys, :interaction_handle, nil)
+  defp parse_interaction_ref(keys, _), do: Map.put(keys, :interaction_ref, nil)
 end
