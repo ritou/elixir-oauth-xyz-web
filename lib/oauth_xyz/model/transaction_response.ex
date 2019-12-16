@@ -17,8 +17,7 @@ defmodule OAuthXYZ.Model.TransactionResponse do
     :server_nonce,
 
     # Next Step: Device
-    #! :string
-    :user_code_url,
+    #! :map
     :user_code,
 
     # Next Step: Wait
@@ -46,7 +45,6 @@ defmodule OAuthXYZ.Model.TransactionResponse do
     %__MODULE__{
       interaction_url: transaction.interact.url,
       server_nonce: transaction.interact.server_nonce,
-      user_code_url: transaction.interact.user_code_url,
       user_code: transaction.interact.user_code,
       wait: transaction.wait,
       access_token: transaction.access_token,

@@ -58,10 +58,8 @@ defmodule OAuthXYZ.Model.Interact do
     :interact_id,
     #! :string
     :server_nonce,
-    #! :string
-    :user_code,
-    #! :string
-    :user_code_url
+    #! :map
+    :user_code
   ]
 
   @doc """

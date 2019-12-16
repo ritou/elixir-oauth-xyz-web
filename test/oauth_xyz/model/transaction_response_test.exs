@@ -54,39 +54,56 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
     }
   }
 
-  test "new" do
-    # init
-    handle = Handle.new(%{value: Ulid.generate(System.system_time(:millisecond)), type: :bearer})
-    transaction_request = TransactionRequest.parse(@request_params)
-    transaction = Transaction.new(%{handle: handle, request: transaction_request})
-    transaction_response = TransactionResponse.new(transaction)
+  describe "new" do
+    test "basic" do
+      # init
+      handle =
+        Handle.new(%{value: Ulid.generate(System.system_time(:millisecond)), type: :bearer})
 
-    assert transaction_response.handle == handle
+      transaction_request = TransactionRequest.parse(@request_params)
+      transaction = Transaction.new(%{handle: handle, request: transaction_request})
+      transaction_response = TransactionResponse.new(transaction)
 
-    # wait
-    wait = 30
-    wait_transaction = %{transaction | wait: wait}
-    transaction_response = TransactionResponse.new(wait_transaction)
-    assert transaction_response.handle == handle
-    assert transaction_response.wait == wait
+      assert transaction_response.handle == handle
+    end
 
-    # redirect
-    interact = transaction.interact
-    interaction_url = "https://server.example.com/interact/4CF492MLVMSW9MKMXKHQ"
-    interact = %{interact | url: interaction_url}
-    server_nonce = "MBDOFXG4Y5CVJCX821LH"
-    interact = %{interact | server_nonce: server_nonce}
-    user_code = "A1BC-3DFF"
-    interact = %{interact | user_code: user_code}
-    user_code_url = "https://server.example.com/interact/device"
-    interact = %{interact | user_code_url: user_code_url}
+    test "interact" do
+      # https://tools.ietf.org/id/draft-richer-transactional-authz-04.html#rfc.section.3
+      handle = Handle.new(%{value: "80UPRY5NM33OMUKMKSKU", type: :bearer})
+      transaction_request = TransactionRequest.parse(@request_params)
+      transaction = Transaction.new(%{handle: handle, request: transaction_request})
 
-    redirect_transaction = %{transaction | interact: interact}
-    transaction_response = TransactionResponse.new(redirect_transaction)
-    assert transaction_response.handle == handle
-    assert transaction_response.interaction_url == interaction_url
-    assert transaction_response.server_nonce == server_nonce
-    assert transaction_response.user_code == user_code
-    assert transaction_response.user_code_url == user_code_url
+      interact = transaction.interact
+      interaction_url = "https://server.example.com/interact/4CF492MLVMSW9MKMXKHQ"
+      interact = %{interact | url: interaction_url}
+      server_nonce = "MBDOFXG4Y5CVJCX821LH"
+      interact = %{interact | server_nonce: server_nonce}
+      user_code_url = "https://server.example.com/interact/device"
+      user_code = "A1BC-3DFF"
+      interact = %{interact | user_code: %{url: user_code_url, code: user_code}}
+
+      transaction = %{transaction | interact: interact}
+      transaction_response = TransactionResponse.new(transaction)
+      assert transaction_response.handle == handle
+      assert transaction_response.interaction_url == interaction_url
+      assert transaction_response.server_nonce == server_nonce
+      assert transaction_response.user_code == %{url: user_code_url, code: user_code}
+    end
+
+    test "wait" do
+      # wait
+      handle =
+        Handle.new(%{value: Ulid.generate(System.system_time(:millisecond)), type: :bearer})
+
+      transaction_request = TransactionRequest.parse(@request_params)
+      transaction = Transaction.new(%{handle: handle, request: transaction_request})
+
+      wait = 30
+      transaction = %{transaction | wait: wait}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.wait == wait
+    end
   end
 end
