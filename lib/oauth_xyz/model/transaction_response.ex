@@ -25,7 +25,7 @@ defmodule OAuthXYZ.Model.TransactionResponse do
     :wait,
 
     # Next Step: Token
-    #! OAuthXYZ.Model.AccessToken
+    #! OAuthXYZ.Model.Handle
     :access_token,
 
     # Handles

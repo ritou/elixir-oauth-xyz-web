@@ -29,7 +29,7 @@ defmodule OAuthXYZ.Model.Transaction do
 
     #! :integer
     :wait,
-    #! %OAuthXYZ.Model.AccessToken{}
+    #! %OAuthXYZ.Model.Handle{}
     :access_token
   ]
 
