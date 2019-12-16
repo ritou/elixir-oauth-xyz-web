@@ -105,5 +105,22 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
       assert transaction_response.handle == handle
       assert transaction_response.wait == wait
     end
+
+    test "token" do
+      # wait
+      handle = Handle.new(%{value: "80UPRY5NM33OMUKMKSKU", type: :bearer})
+
+      transaction_request = TransactionRequest.parse(@request_params)
+      transaction = Transaction.new(%{handle: handle, request: transaction_request})
+
+      access_token =
+        Handle.new(%{value: "OS9M2PMHKUR64TB8N6BW7OZB8CDFONP219RP1LT0", type: :bearer})
+
+      transaction = %{transaction | access_token: access_token}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.access_token == access_token
+    end
   end
 end
