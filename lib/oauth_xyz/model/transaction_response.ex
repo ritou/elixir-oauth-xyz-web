@@ -36,9 +36,9 @@ defmodule OAuthXYZ.Model.TransactionResponse do
     #! :string
     :user_handle,
     #! :string
-    :resource_handle,
+    :key_handle,
     #! :string
-    :key_handle
+    :resources_handle
   ]
 
   def new(transaction = %Transaction{}) do
@@ -51,8 +51,8 @@ defmodule OAuthXYZ.Model.TransactionResponse do
       handle: transaction.handle,
       display_handle: transaction.display.handle,
       user_handle: transaction.user.handle,
-      resource_handle: transaction.resource_handle,
-      key_handle: transaction.keys.handle
+      key_handle: transaction.keys.handle,
+      resources_handle: transaction.resources_handle
     }
   end
 

@@ -25,7 +25,7 @@ defmodule OAuthXYZ.Model.Transaction do
 
     # TODO: handling resource handle
     #! %OAuthXYZ.Model.Handle{}
-    :resource_handle,
+    :resources_handle,
 
     #! :integer
     :wait,

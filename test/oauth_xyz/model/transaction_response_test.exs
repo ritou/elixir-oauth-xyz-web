@@ -91,7 +91,6 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
     end
 
     test "wait" do
-      # wait
       handle =
         Handle.new(%{value: Ulid.generate(System.system_time(:millisecond)), type: :bearer})
 
@@ -107,7 +106,6 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
     end
 
     test "token" do
-      # wait
       handle = Handle.new(%{value: "80UPRY5NM33OMUKMKSKU", type: :bearer})
 
       transaction_request = TransactionRequest.parse(@request_params)
@@ -121,6 +119,65 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
 
       assert transaction_response.handle == handle
       assert transaction_response.access_token == access_token
+    end
+
+    test "handles" do
+      handle = Handle.new(%{value: "80UPRY5NM33OMUKMKSKU", type: :bearer})
+      transaction_request = TransactionRequest.parse(@request_params)
+      transaction = Transaction.new(%{handle: handle, request: transaction_request})
+
+      # display
+      display = transaction.display
+      display_handle = Handle.new(%{value: "VBUEOIQA82PBY2ZDJW7Q", type: :bearer})
+      display = %{display | handle: display_handle}
+
+      transaction = %{transaction | display: display}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.display_handle == display_handle
+
+      # resources handle
+      resources_handle = Handle.new(%{value: "KLKP36N7GPOKRF3KGH5N", type: :bearer})
+
+      transaction = %{transaction | resources_handle: resources_handle}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.resources_handle == resources_handle
+
+      # user handle
+      user = transaction.user
+      user_handle = Handle.new(%{value: "XUT2MFM1XBIKJKSDU8QM", type: :bearer})
+      user = %{user | handle: user_handle}
+
+      transaction = %{transaction | user: user}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.user_handle == user_handle
+
+      # user handle
+      user = transaction.user
+      user_handle = Handle.new(%{value: "XUT2MFM1XBIKJKSDU8QM", type: :bearer})
+      user = %{user | handle: user_handle}
+
+      transaction = %{transaction | user: user}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.user_handle == user_handle
+
+      # key handle
+      keys = transaction.keys
+      key_handle = Handle.new(%{value: "7C7C4AZ9KHRS6X63AJAO", type: :bearer})
+      keys = %{keys | handle: key_handle}
+
+      transaction = %{transaction | keys: keys}
+      transaction_response = TransactionResponse.new(transaction)
+
+      assert transaction_response.handle == handle
+      assert transaction_response.key_handle == key_handle
     end
   end
 end
