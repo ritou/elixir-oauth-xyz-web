@@ -41,11 +41,11 @@ defmodule OAuthXYZ.Model.Interact do
   defstruct [
     # from request
     #! :boolean
-    :redirect,
+    :can_redirect,
     #! :map
     :callback,
     #! :boolean
-    :user_code,
+    :can_user_code,
     #! :boolean
     :didcomm,
     #! :boolean
@@ -76,9 +76,9 @@ defmodule OAuthXYZ.Model.Interact do
       |> parse_didcomm_query(request)
 
     %__MODULE__{
-      redirect: parsed_request.redirect,
+      can_redirect: parsed_request.redirect,
       callback: parsed_request.callback,
-      user_code: parsed_request.user_code,
+      can_user_code: parsed_request.user_code,
       didcomm: parsed_request.didcomm,
       didcomm_query: parsed_request.didcomm_query
     }

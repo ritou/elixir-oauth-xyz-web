@@ -137,14 +137,15 @@ defmodule OAuthXYZ.Model.TransactionResponseTest do
       assert transaction_response.handle == handle
       assert transaction_response.display_handle == display_handle
 
+      # TODO: handling resource handle
       # resources handle
-      resources_handle = Handle.new(%{value: "KLKP36N7GPOKRF3KGH5N", type: :bearer})
+      # resources_handle = Handle.new(%{value: "KLKP36N7GPOKRF3KGH5N", type: :bearer})
 
-      transaction = %{transaction | resources_handle: resources_handle}
-      transaction_response = TransactionResponse.new(transaction)
+      # transaction = %{transaction | resources_handle: resources_handle}
+      # transaction_response = TransactionResponse.new(transaction)
 
-      assert transaction_response.handle == handle
-      assert transaction_response.resources_handle == resources_handle
+      # assert transaction_response.handle == handle
+      # assert transaction_response.resources_handle == resources_handle
 
       # user handle
       user = transaction.user

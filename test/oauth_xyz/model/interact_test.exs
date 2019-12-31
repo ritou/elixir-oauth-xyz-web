@@ -16,14 +16,14 @@ defmodule OAuthXYZ.Model.InteractTest do
         }
       })
 
-    assert interact.redirect
+    assert interact.can_redirect
 
     assert interact.callback == %{
              "uri" => uri,
              "nonce" => nonce
            }
 
-    refute interact.user_code
+    refute interact.can_user_code
     refute interact.didcomm
     refute interact.didcomm_query
 
@@ -32,9 +32,9 @@ defmodule OAuthXYZ.Model.InteractTest do
         "user_code" => true
       })
 
-    refute interact.redirect
+    refute interact.can_redirect
     refute interact.callback
-    assert interact.user_code == true
+    assert interact.can_user_code == true
     refute interact.didcomm
     refute interact.didcomm_query
 
@@ -43,9 +43,9 @@ defmodule OAuthXYZ.Model.InteractTest do
         "didcomm" => true
       })
 
-    refute interact.redirect
+    refute interact.can_redirect
     refute interact.callback
-    refute interact.user_code
+    refute interact.can_user_code
     assert interact.didcomm == true
     refute interact.didcomm_query
 
@@ -54,9 +54,9 @@ defmodule OAuthXYZ.Model.InteractTest do
         "didcomm_query" => true
       })
 
-    refute interact.redirect
+    refute interact.can_redirect
     refute interact.callback
-    refute interact.user_code
+    refute interact.can_user_code
     refute interact.didcomm
     assert interact.didcomm_query == true
   end
