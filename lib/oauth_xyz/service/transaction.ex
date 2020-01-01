@@ -67,7 +67,7 @@ defmodule OAuthXYZ.Service.Transaction do
     end
   end
 
-  defp get_transaction(transaction_request = %TransactionRequest{handle: handle}) do
+  defp get_transaction(%TransactionRequest{handle: handle}) do
     @data_handler.get_transaction_by_handle(handle)
     |> case do
       transaction = %Transaction{} -> transaction
@@ -79,9 +79,9 @@ defmodule OAuthXYZ.Service.Transaction do
 
   defp validate_transaction_request(transaction_request) do
     with display = %DisplayRequest{} <- validate_display_request(transaction_request),
-         user = %UserRequest{} <- validate_display_request(transaction_request),
-         resources when is_list(resources) <- validate_display_request(transaction_request),
-         keys = %KeyRequest{} <- validate_display_request(transaction_request),
+         user = %UserRequest{} <- validate_user_request(transaction_request),
+         resources when is_list(resources) <- validate_resources_request(transaction_request),
+         keys = %KeyRequest{} <- validate_keys_request(transaction_request),
          :ok <-
            @data_handler.validate_interact_request(transaction_request) do
       %TransactionRequest{
@@ -128,19 +128,7 @@ defmodule OAuthXYZ.Service.Transaction do
 
   # process transaction and response
 
-  defp do_process(transaction = %Transaction{status: :new}) do
-    with transaction <- set_interact_response(transaction),
-         transaction <- set_interact_server_nonce(transaction),
-         transaction <- set_interact_user_code(transaction),
-         transaction <- Transaction.update_status(transaction, :wait),
-         transaction <- @data_handler.set_wait_sec(transaction),
-         :ok <- @data_handler.save_transaction(transaction) do
-      TransactionResponse.new(transaction)
-    end
-  end
-
   defp set_interact_response(transaction = %Transaction{}) do
-    # TODO: use guard
     if !is_nil(transaction.interact) && !is_nil(transaction.interact.redirect) do
       @data_handler.set_interact_response(transaction)
     else
@@ -149,7 +137,6 @@ defmodule OAuthXYZ.Service.Transaction do
   end
 
   defp set_interact_server_nonce(transaction = %Transaction{}) do
-    # TODO: use guard
     if !is_nil(transaction.interact) && !is_nil(transaction.interact.callback) do
       @data_handler.set_interact_server_nonce(transaction)
     else
@@ -158,11 +145,21 @@ defmodule OAuthXYZ.Service.Transaction do
   end
 
   defp set_interact_user_code(transaction = %Transaction{}) do
-    # TODO: use guard
     if !is_nil(transaction.interact) && !is_nil(transaction.interact.callback) do
       @data_handler.set_interact_user_code(transaction)
     else
       transaction
+    end
+  end
+
+  defp do_process(transaction = %Transaction{status: :new}) do
+    with transaction <- set_interact_response(transaction),
+         transaction <- set_interact_server_nonce(transaction),
+         transaction <- set_interact_user_code(transaction),
+         transaction <- Transaction.update_status(transaction, :wait),
+         transaction <- @data_handler.set_wait_sec(transaction),
+         :ok <- @data_handler.save_transaction(transaction) do
+      TransactionResponse.new(transaction)
     end
   end
 
@@ -188,7 +185,7 @@ defmodule OAuthXYZ.Service.Transaction do
     TransactionResponse.new(transaction)
   end
 
-  defp do_process(transaction = %Transaction{status: :denied}) do
+  defp do_process(%Transaction{status: :denied}) do
     {:error, 403, ErrorResponse.new(:inetrnal_error)}
   end
 
