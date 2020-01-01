@@ -17,3 +17,6 @@ config :oauth_xyz, OAuthXYZ.Repo,
   database: "oauth_xyz_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+# For OAuthXYZ.Service.*
+config :oauth_xyz, OAuthXYZ.Service.Transaction, data_handler: OAuthXYZWeb.Test.DataHandler
