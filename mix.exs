@@ -42,7 +42,8 @@ defmodule OAuthXYZ.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:plug_cowboy, "~> 1.0"},
-      {:ulid, "~> 0.2.0"}
+      {:ulid, "~> 0.2.0"},
+      {:kitten_blue, "~> 0.1.4"}
     ]
   end
 

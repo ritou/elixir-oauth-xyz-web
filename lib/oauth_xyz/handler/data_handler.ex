@@ -14,13 +14,13 @@ defmodule OAuthXYZ.Handler.DataHandler do
 
   # transaction handle
   @callback create_transaction_handle() :: Handle.t()
+  # save transaction data
+  @callback save_transaction(transaction :: Transaction.t()) :: :ok | {:error, :internal_error}
   # lookup by transaction handle
   @callback get_transaction_by_handle(handle :: String.t()) ::
               Transaction.t() | {:error, :invalid_handle} | {:error, :invalid_transaction}
   # rotate transaction handle
   @callback rotate_transaction_handle(transaction :: Transaction.t()) :: Transaction.t()
-  # save transaction data
-  @callback save_transaction(transaction :: Transaction.t()) :: :ok | {:error, :inetrnal_error}
 
   # request and handles
   # validate request and set handle

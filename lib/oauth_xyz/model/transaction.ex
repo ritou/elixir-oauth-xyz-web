@@ -48,7 +48,10 @@ defmodule OAuthXYZ.Model.Transaction do
 
   @spec update_status(t, atom) :: t
   def update_status(transaction = %__MODULE__{}, status)
-      when status in @transaction_status_list do
-    %{transaction | status: status}
-  end
+      when status in @transaction_status_list,
+      do: %{transaction | status: status}
+
+  @spec rotate_handle(t, Handle.t()) :: t
+  def rotate_handle(transaction = %__MODULE__{}, handle = %Handle{}),
+    do: %{transaction | handle: handle}
 end
