@@ -43,15 +43,45 @@ defmodule OAuthXYZ.Model.TransactionResponse do
 
   def new(transaction = %Transaction{}) do
     %__MODULE__{
-      interaction_url: transaction.interact.url,
-      server_nonce: transaction.interact.server_nonce,
-      user_code: transaction.interact.user_code,
+      interaction_url:
+        if transaction.interact do
+          transaction.interact.url
+        else
+          nil
+        end,
+      server_nonce:
+        if transaction.interact do
+          transaction.interact.server_nonce
+        else
+          nil
+        end,
+      user_code:
+        if transaction.interact do
+          transaction.interact.user_code
+        else
+          nil
+        end,
       wait: transaction.wait,
       access_token: transaction.access_token,
       handle: transaction.handle,
-      display_handle: transaction.display.handle,
-      user_handle: transaction.user.handle,
-      key_handle: transaction.keys.handle
+      display_handle:
+        if transaction.display do
+          transaction.display.handle
+        else
+          nil
+        end,
+      user_handle:
+        if transaction.user do
+          transaction.user.handle
+        else
+          nil
+        end,
+      key_handle:
+        if transaction.keys do
+          transaction.keys.handle
+        else
+          nil
+        end
       # TODO : handling resource handle 
       # resources_handle: transaction.resources_handle
     }

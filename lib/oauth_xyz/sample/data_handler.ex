@@ -9,7 +9,6 @@ defmodule OAuthXYZ.Sample.DataHandler do
     DisplayRequest,
     Interact,
     UserRequest,
-    ResourceRequest,
     KeyRequest
   }
 
@@ -22,9 +21,16 @@ defmodule OAuthXYZ.Sample.DataHandler do
 
   @handle_type_transaction "tx"
 
+  @handle_type_interact_id "ii"
+
   @handle_type_access_token "at"
 
   @wait_sec 30
+
+  @interact_id_expiration 60 * 60
+
+  # TODO: from confiig
+  @jwt_iss "http://localhost:4000"
 
   @spec create_transaction_handle() :: Handle.t()
   def create_transaction_handle() do
@@ -36,7 +42,12 @@ defmodule OAuthXYZ.Sample.DataHandler do
     iat = System.system_time(:second)
 
     {:ok, token} =
-      %{"handle" => @handle_type_transaction, "sub" => transaction_id, "iat" => iat}
+      %{
+        "iss" => @jwt_iss,
+        "handle" => @handle_type_transaction,
+        "sub" => transaction_id,
+        "iat" => iat
+      }
       |> KittenBlue.JWS.sign(@key4transaction)
 
     Handle.new(%{value: token, type: :bearer})
@@ -60,10 +71,7 @@ defmodule OAuthXYZ.Sample.DataHandler do
     with display <- transaction.display |> Poison.encode!(),
          interact <- transaction.interact |> Poison.encode!(),
          user <- transaction.user |> Poison.encode!(),
-         resources <-
-           transaction.resources
-           |> Enum.map(fn resource -> Poison.encode!(resource) end)
-           |> Poison.encode!(),
+         resources <- serialize_resources(transaction.resources),
          keys <- transaction.keys |> Poison.encode!() do
       %SampleTransaction{}
       |> SampleTransaction.changeset(%{
@@ -85,6 +93,16 @@ defmodule OAuthXYZ.Sample.DataHandler do
           {:error, :internal_error}
       end
     end
+  end
+
+  defp serialize_resources(resources) when is_list(resources) do
+    resources
+    |> Enum.map(fn resource -> Poison.encode!(resource) end)
+    |> Poison.encode!()
+  end
+
+  defp serialize_resources(resources) do
+    resources |> Poison.encode!()
   end
 
   @spec get_transaction_by_handle(handle :: String.t()) ::
@@ -122,76 +140,72 @@ defmodule OAuthXYZ.Sample.DataHandler do
     Transaction.rotate_handle(transaction, handle)
   end
 
-  @spec validate_and_set_display_handle(request :: TransactionRequest.t()) ::
-          DisplayRequest.t() | {:error, :invalid_display}
-  def validate_and_set_display_handle(request) do
-    # TODO: do validation
-    request.display
-  end
+  @spec validate_transaction_request(request :: TransactionRequest.t()) ::
+          TransactionRequest.t() | {:error, term}
+  def validate_transaction_request(request) do
+    cond do
+      is_nil(request.resources) || is_nil(request.keys) || is_nil(request.interact) ->
+        {:error, :invalid_request}
 
-  @spec validate_and_set_user_handle(request :: TransactionRequest.t()) ::
-          UserRequest.t() | {:error, :invalid_user}
-  def validate_and_set_user_handle(request) do
-    # TODO: do validation
-    request.user
-  end
-
-  @spec validate_and_set_resources_handle(request :: TransactionRequest.t()) ::
-          [ResourceRequest.t()] | {:error, :invalid_resources}
-  def validate_and_set_resources_handle(request) do
-    # TODO: do validation
-    request.resources
-  end
-
-  @spec validate_and_set_keys_handle(request :: TransactionRequest.t()) ::
-          KeyRequest.t() | {:error, :invalid_keys}
-  def validate_and_set_keys_handle(request) do
-    # TODO: do validation
-    request.keys
-  end
-
-  @spec validate_interact_request(request :: TransactionRequest.t()) ::
-          :ok | {:error, :invalid_interact}
-  def validate_interact_request(_request) do
-    # TODO: do validation
-    :ok
-  end
-
-  @spec get_display_by_handle(handle :: String.t()) ::
-          DisplayRequest.t() | {:error, :invalid_display}
-  def get_display_by_handle(_handle) do
-    {:error, :invalid_display}
-  end
-
-  @spec get_user_by_handle(handle :: String.t()) :: UserRequest.t() | {:error, :invalid_user}
-  def get_user_by_handle(_handle) do
-    {:error, :invalid_user}
-  end
-
-  @spec get_resources_by_handle(handle :: String.t()) ::
-          ResourceRequest.t() | {:error, :invalid_resources}
-  def get_resources_by_handle(_handle) do
-    {:error, :invalid_resources}
-  end
-
-  @spec get_keys_by_handle(handle :: String.t()) :: KeyRequest.t() | {:error, :invalid_keys}
-  def get_keys_by_handle(_handle) do
-    {:error, :invalid_keys}
+      true ->
+        # TODO: more detail check(HTTP Header etc...)
+        request
+    end
   end
 
   @spec set_interact_response(transaction :: Transaction.t()) :: Transaction.t()
-  def set_interact_response(transaction) do
-    transaction
+  def set_interact_response(transaction = %Transaction{interact: interact}) do
+    if !is_nil(interact) && interact.can_redirect do
+      interact_id = do_create_interact_id(transaction.handle.value)
+
+      interaction_url = "http://localhost:4000/interact?interact_id=#{interact_id}"
+
+      interact = %{interact | interact_id: interact_id}
+      interact = %{interact | url: interaction_url}
+      %{transaction | interact: interact}
+    else
+      transaction
+    end
+  end
+
+  defp do_create_interact_id(handle_value) do
+    transaction_id = parse_transaction_id_by_handle(handle_value)
+    exp = System.system_time(:second) + @interact_id_expiration
+
+    # TODO: other claims for resource access
+    {:ok, token} =
+      %{
+        "iss" => @jwt_iss,
+        "handle" => @handle_type_interact_id,
+        "sub" => transaction_id,
+        "exp" => exp
+      }
+      |> KittenBlue.JWS.sign(@key4transaction)
+
+    token
   end
 
   @spec set_interact_server_nonce(transaction :: Transaction.t()) :: Transaction.t()
-  def set_interact_server_nonce(transaction) do
-    transaction
+  def set_interact_server_nonce(transaction = %Transaction{interact: interact}) do
+    if !is_nil(interact) && is_map(interact.callback) do
+      server_nonce = Ulid.generate(System.system_time(:millisecond))
+      interact = %{interact | server_nonce: server_nonce}
+      %{transaction | interact: interact}
+    else
+      transaction
+    end
   end
 
   @spec set_interact_user_code(transaction :: Transaction.t()) :: Transaction.t()
-  def set_interact_user_code(transaction) do
-    transaction
+  def set_interact_user_code(transaction = %Transaction{interact: interact}) do
+    if !is_nil(interact) && interact.can_user_code do
+      user_code = :rand.uniform(100_000_000) |> Integer.to_string() |> String.pad_leading(8, "0")
+
+      interact = %{interact | user_code: user_code}
+      %{transaction | interact: interact}
+    else
+      transaction
+    end
   end
 
   @spec set_wait_sec(transaction :: Transaction.t()) :: Transaction.t()
@@ -209,8 +223,14 @@ defmodule OAuthXYZ.Sample.DataHandler do
   defp do_create_access_token(transaction_id) do
     iat = System.system_time(:second)
 
+    # TODO: other claims for resource access
     {:ok, token} =
-      %{"handle" => @handle_type_access_token, "sub" => transaction_id, "iat" => iat}
+      %{
+        "iss" => @jwt_iss,
+        "handle" => @handle_type_access_token,
+        "sub" => transaction_id,
+        "iat" => iat
+      }
       |> KittenBlue.JWS.sign(@key4transaction)
 
     Handle.new(%{value: token, type: :bearer})
